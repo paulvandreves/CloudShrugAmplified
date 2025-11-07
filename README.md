@@ -13,16 +13,6 @@ A multi-tenant SaaS application that automatically ingests and documents AWS Clo
 
 ## Architecture
 
-```
-CloudWatch Alarm  ─▶  SNS Topic  ─▶  HTTPS Webhook  ─▶  Lambda Function  ─▶  DynamoDB
-                                                                                    │
-                                                                                    ▼
-                                                                      Amplify Data (GraphQL API)
-                                                                                    │
-                                                                                    ▼
-                                                                        Next.js Frontend App
-```
-
 ## Data Model
 
 ### Organization

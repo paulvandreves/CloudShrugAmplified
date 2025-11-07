@@ -223,7 +223,7 @@ The production webhook URL will be in your Amplify outputs.
 ## Next Enhancements
 
 1. **Complete DynamoDB Integration**: Store alarms in the database
-2. **Email Notifications**: Alert teams when critical alarms occur
+2. **Email Notifications**: Alert teams when critical alarms occur (Include Link for logging )
 3. **Advanced Filtering**: Search and filter alarms
 4. **Analytics Dashboard**: Alarm trends and insights
 5. **Slack Integration**: Post alarms to Slack channels
