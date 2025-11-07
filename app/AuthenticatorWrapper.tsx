@@ -7,5 +7,9 @@ export default function AuthenticatorWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  return <Authenticator>{children}</Authenticator>;
+  return (
+    <Authenticator.Provider>
+      {children}
+    </Authenticator.Provider>
+  );
 }
