@@ -90,7 +90,7 @@ export function initializeDemoData() {
       accountId: "123456789012",
       namespace: "AWS/EC2",
       metricName: "DiskSpaceAvailable",
-      investigationStatus: "ACKNOWLEDGED",
+      investigationStatus: "PENDING",
       rawPayload: {
         AlarmName: "DiskSpace Low - Log Server",
         NewStateValue: "OK",
@@ -149,7 +149,7 @@ export function initializeDemoData() {
       alarmId: "demo-3",
       userId: "demo-user",
       userEmail: "demo@example.com",
-      status: "ACKNOWLEDGED",
+      status: "PENDING",
       notes: "Cleaned up old log files. Disk space now at 25%.",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 1.5).toISOString(),
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1.5).toISOString(),
@@ -235,6 +235,44 @@ export const demoInvestigations = {
   get: (id: string): Investigation | null => {
     const investigations = demoInvestigations.list();
     return investigations.find((inv) => inv.id === id) || null;
+  },
+
+  getByAlarmId: (alarmId: string): Investigation | null => {
+    const investigations = demoInvestigations.list(alarmId);
+    return investigations.length > 0 ? investigations[0] : null;
+  },
+
+  update: (id: string, updates: Partial<Investigation>): Investigation | null => {
+    const investigations = demoInvestigations.list();
+    const index = investigations.findIndex((inv) => inv.id === id);
+    if (index === -1) return null;
+
+    const updated = {
+      ...investigations[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    investigations[index] = updated;
+    localStorage.setItem(STORAGE_KEYS.INVESTIGATIONS, JSON.stringify(investigations));
+    return updated;
+  },
+
+  updateOrCreate: (
+    alarmId: string,
+    investigation: Omit<Investigation, "id" | "createdAt" | "updatedAt">
+  ): Investigation => {
+    const existing = demoInvestigations.getByAlarmId(alarmId);
+    
+    if (existing) {
+      // Update existing investigation
+      return demoInvestigations.update(existing.id, {
+        ...investigation,
+        timestamp: new Date().toISOString(),
+      })!;
+    } else {
+      // Create new investigation
+      return demoInvestigations.create(investigation);
+    }
   },
 };
 

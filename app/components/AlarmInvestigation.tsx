@@ -27,23 +27,35 @@ export default function AlarmInvestigation({
   const { user } = useAuthenticator();
   const [status, setStatus] = useState<string>(alarm.investigationStatus || "PENDING");
   const [notes, setNotes] = useState<string>("");
-  const [investigations, setInvestigations] = useState<Investigation[]>([]);
+  const [investigation, setInvestigation] = useState<Investigation | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchInvestigations();
+    fetchInvestigation();
   }, [alarm.id, demoMode]);
 
-  const fetchInvestigations = async () => {
+  // Load existing investigation notes if one exists
+  useEffect(() => {
+    if (investigation) {
+      setNotes(investigation.notes || "");
+      setStatus(investigation.status);
+    } else {
+      // Clear notes if no investigation exists
+      setNotes("");
+      setStatus(alarm.investigationStatus || "PENDING");
+    }
+  }, [investigation, alarm.investigationStatus]);
+
+  const fetchInvestigation = async () => {
     setLoading(true);
     try {
       if (demoMode) {
-        // Use LocalStorage for demo mode
-        const demoInvestigationsList = demoInvestigations.list(alarm.id);
-        setInvestigations(demoInvestigationsList);
+        // Use LocalStorage for demo mode - get the single investigation for this alarm
+        const existing = demoInvestigations.getByAlarmId(alarm.id);
+        setInvestigation(existing);
       } else {
-        // Use real API
+        // Use real API - get the single investigation for this alarm
         const { data } = await client.models.Investigation.list({
           filter: {
             alarmId: {
@@ -52,16 +64,18 @@ export default function AlarmInvestigation({
           },
         });
 
-        if (data) {
-          // Sort by timestamp, newest first
+        if (data && data.length > 0) {
+          // Get the most recent investigation (should only be one)
           const sorted = [...data].sort((a, b) => {
             return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
           });
-          setInvestigations(sorted);
+          setInvestigation(sorted[0]);
+        } else {
+          setInvestigation(null);
         }
       }
     } catch (error) {
-      console.error("Error fetching investigations:", error);
+      console.error("Error fetching investigation:", error);
     } finally {
       setLoading(false);
     }
@@ -77,8 +91,8 @@ export default function AlarmInvestigation({
         const userEmail = "demo@example.com";
         const userId = "demo-user";
 
-        // Create investigation record
-        demoInvestigations.create({
+        // Update or create investigation (one-to-one relationship)
+        demoInvestigations.updateOrCreate(alarm.id, {
           alarmId: alarm.id,
           userId,
           userEmail,
@@ -95,18 +109,32 @@ export default function AlarmInvestigation({
 
         if (updated) {
           onUpdate(updated);
+          // Close the dialog after saving
+          onClose();
         }
       } else {
         // Use real API
-        // Create investigation record
-        await client.models.Investigation.create({
-          alarmId: alarm.id,
-          userId: user.userId,
-          userEmail: user.signInDetails?.loginId || "",
-          status,
-          notes,
-          timestamp: new Date().toISOString(),
-        });
+        // Check if investigation exists
+        const existing = investigation;
+        if (existing) {
+          // Update existing investigation
+          await client.models.Investigation.update({
+            id: existing.id,
+            status,
+            notes,
+            timestamp: new Date().toISOString(),
+          });
+        } else {
+          // Create new investigation
+          await client.models.Investigation.create({
+            alarmId: alarm.id,
+            userId: user.userId,
+            userEmail: user.signInDetails?.loginId || "",
+            status,
+            notes,
+            timestamp: new Date().toISOString(),
+          });
+        }
 
         // Update alarm investigation status
         const updated = await client.models.Alarm.update({
@@ -116,12 +144,10 @@ export default function AlarmInvestigation({
 
         if (updated.data) {
           onUpdate(updated.data);
+          // Close the dialog after saving
+          onClose();
         }
       }
-
-      // Refresh investigations list
-      await fetchInvestigations();
-      setNotes("");
     } catch (error) {
       console.error("Error saving investigation:", error);
       alert("Error saving investigation. Please try again.");
@@ -221,7 +247,6 @@ export default function AlarmInvestigation({
                 className="form-select"
               >
                 <option value="PENDING">Pending</option>
-                <option value="ACKNOWLEDGED">Acknowledged</option>
                 <option value="INVESTIGATING">Investigating</option>
                 <option value="RESOLVED">Resolved</option>
               </select>
@@ -247,35 +272,36 @@ export default function AlarmInvestigation({
           </section>
 
           <section className="investigation-history">
-            <h3>Investigation Timeline</h3>
+            <h3>Investigation Details</h3>
             {loading ? (
-              <div className="loading">Loading investigations...</div>
-            ) : investigations.length === 0 ? (
+              <div className="loading">Loading investigation...</div>
+            ) : !investigation ? (
               <div className="empty-state">
-                No investigations yet. Be the first to investigate this alarm.
+                No investigation yet. Add notes and status above to create an investigation for this alarm.
               </div>
             ) : (
               <div className="timeline">
-                {investigations.map((investigation) => (
-                  <div key={investigation.id} className="timeline-item">
-                    <div className="timeline-header">
-                      <span className="timeline-user">
-                        {investigation.userEmail || investigation.userId}
-                      </span>
-                      <span className="timeline-time">
-                        {new Date(investigation.timestamp).toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="timeline-status">
-                      <span className={`status-badge status-${investigation.status.toLowerCase()}`}>
-                        {investigation.status}
-                      </span>
-                    </div>
-                    {investigation.notes && (
-                      <div className="timeline-notes">{investigation.notes}</div>
-                    )}
+                <div key={investigation.id} className="timeline-item">
+                  <div className="timeline-header">
+                    <span className="timeline-user">
+                      {investigation.userEmail || investigation.userId}
+                    </span>
+                    <span className="timeline-time">
+                      {new Date(investigation.timestamp).toLocaleString()}
+                      {investigation.updatedAt && investigation.updatedAt !== investigation.createdAt && (
+                        <span className="updated-badge"> (Updated)</span>
+                      )}
+                    </span>
                   </div>
-                ))}
+                  <div className="timeline-status">
+                    <span className={`status-badge status-${investigation.status.toLowerCase()}`}>
+                      {investigation.status}
+                    </span>
+                  </div>
+                  {investigation.notes && (
+                    <div className="timeline-notes">{investigation.notes}</div>
+                  )}
+                </div>
               </div>
             )}
           </section>

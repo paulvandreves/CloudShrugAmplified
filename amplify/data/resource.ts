@@ -58,7 +58,7 @@ const schema = a.schema({
       metricName: a.string(),
       
       // Investigation tracking
-      investigationStatus: a.string(), // 'PENDING', 'ACKNOWLEDGED', 'INVESTIGATING', 'RESOLVED'
+      investigationStatus: a.string(), // 'PENDING', 'INVESTIGATING', 'RESOLVED'
       rawPayload: a.json(),
       
       // Relationships
@@ -75,7 +75,7 @@ const schema = a.schema({
       alarm: a.belongsTo("Alarm", "alarmId"),
       userId: a.string().required(),
       userEmail: a.string(),
-      status: a.string().required(), // 'ACKNOWLEDGED', 'INVESTIGATING', 'RESOLVED'
+      status: a.string().required(), // 'PENDING', 'INVESTIGATING', 'RESOLVED'
       notes: a.string(),
       timestamp: a.datetime().required(),
     })

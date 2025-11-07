@@ -9,6 +9,7 @@ import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import AlarmInvestigation from "./components/AlarmInvestigation";
+import ResourceTree from "./components/ResourceTree";
 import { 
   demoAlarms, 
   demoOrganization, 
@@ -28,7 +29,7 @@ export default function App() {
   const [selectedAlarm, setSelectedAlarm] = useState<Alarm | null>(null);
   const [organization, setOrganization] = useState<Schema["Organization"]["type"] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(true);
 
   useEffect(() => {
     if (demoMode) {
@@ -175,13 +176,16 @@ export default function App() {
   const getStatusColor = (status: string | null | undefined) => {
     switch (status) {
       case "RESOLVED":
-        return "#44aa44";
+        return "#48bb78"; // green
       case "INVESTIGATING":
-        return "#4488ff";
+        return "#ed8936"; // yellow/orange
+      case "PENDING":
+        return "#f56565"; // red
       case "ACKNOWLEDGED":
-        return "#ffaa44";
+        // Map ACKNOWLEDGED to PENDING color for backward compatibility
+        return "#f56565"; // red
       default:
-        return "#888";
+        return "#a0aec0"; // gray
     }
   };
 
@@ -200,9 +204,12 @@ export default function App() {
       <main className="container">
         <div className="welcome-screen">
           <div className="welcome-content">
-            <h1>CloudWatch Alarm Monitor</h1>
+            <h1>CloudShrug</h1>
             <p className="welcome-subtitle">
-              Automatically document and track your AWS CloudWatch alarms with your team
+            Recongize patterns in you aws CloudWatch Alarms
+            </p>
+            <p className="welcome-subtitle">
+             Gain insight in to your alarms and view patterns over time 
             </p>
             <div className="welcome-actions">
               <button onClick={() => setDemoMode(true)} className="btn-secondary btn-large">
@@ -224,7 +231,7 @@ export default function App() {
         <div className="demo-banner">
           <div className="demo-banner-content">
             <span className="demo-badge">🎭 DEMO MODE</span>
-            <p>You're exploring with sample data. All changes are saved locally. Sign up to monitor your own CloudWatch alarms!</p>
+            <p>You're exploring with sample data. All changes are saved locally</p>
             <div className="demo-actions">
               <button 
                 onClick={() => {
@@ -259,7 +266,7 @@ export default function App() {
       
       <header className="header">
         <div className="header-content">
-          <h1>CloudWatch Alarm Monitor</h1>
+          <h1>Your Cloudwatch Alarms</h1>
           <div className="user-info">
             {demoMode ? (
               <>
@@ -286,7 +293,7 @@ export default function App() {
         </div>
       </header>
 
-      {organization && (
+      {organization && !demoMode && (
         <section className="webhook-section">
           <h2>Webhook Configuration</h2>
           <p>Configure your CloudWatch alarms to send notifications to this webhook URL:</p>
@@ -304,53 +311,22 @@ export default function App() {
       )}
 
       <section className="alarms-section">
-        <h2>Recent Alarms</h2>
+        <h2>Alarms by Resource</h2>
+        <p className="section-description">
+          Alarms grouped by resource type and identifier. Expand to see alarm history and investigations for each resource.
+        </p>
         {alarms.length === 0 ? (
           <div className="empty-state">
             <p>No alarms received yet. Configure your CloudWatch alarms to start monitoring.</p>
           </div>
         ) : (
-          <div className="alarms-grid">
-            {alarms.map((alarm) => (
-              <div
-                key={alarm.id}
-                className="alarm-card"
-                onClick={() => setSelectedAlarm(alarm)}
-              >
-                <div className="alarm-header">
-                  <h3>{alarm.alarmName}</h3>
-                  <span
-                    className="state-badge"
-                    style={{ backgroundColor: getStateColor(alarm.state) }}
-                  >
-                    {alarm.state}
-                  </span>
-                </div>
-                {alarm.alarmDescription && (
-                  <p className="alarm-description">{alarm.alarmDescription}</p>
-                )}
-                <div className="alarm-meta">
-                  <span className="alarm-time">
-                    {new Date(alarm.timestamp).toLocaleString()}
-                  </span>
-                  {alarm.region && (
-                    <span className="alarm-region">{alarm.region}</span>
-                  )}
-                </div>
-                <div className="alarm-footer">
-                  <span
-                    className="status-badge"
-                    style={{ backgroundColor: getStatusColor(alarm.investigationStatus) }}
-                  >
-                    {alarm.investigationStatus || 'PENDING'}
-                  </span>
-                  {alarm.metricName && (
-                    <span className="metric-name">{alarm.metricName}</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ResourceTree
+            alarms={alarms}
+            demoMode={demoMode}
+            onAlarmClick={setSelectedAlarm}
+            getStateColor={getStateColor}
+            getStatusColor={getStatusColor}
+          />
         )}
       </section>
 
@@ -367,7 +343,11 @@ export default function App() {
             }
           }}
           onUpdate={(updatedAlarm) => {
-            setAlarms(alarms.map(a => a.id === updatedAlarm.id ? updatedAlarm : a));
+            // Update the alarms array with the updated alarm
+            const updatedAlarms = alarms.map(a => 
+              a.id === updatedAlarm.id ? updatedAlarm : a
+            );
+            setAlarms(updatedAlarms);
             setSelectedAlarm(updatedAlarm);
             // Also update LocalStorage if in demo mode
             if (demoMode) {
