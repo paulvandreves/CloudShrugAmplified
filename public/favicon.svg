@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background circle for better visibility -->
+  <circle cx="32" cy="32" r="30" fill="url(#gradient)" opacity="0.1"/>
+  
+  <!-- Cloud shape -->
+  <path d="M45 28c0-3.314-2.686-6-6-6-1.1 0-2.1.3-3 .8-1.5-2.5-4.2-4.2-7.2-4.2-4.7 0-8.5 3.8-8.5 8.5 0 .5.1 1 .2 1.5-2.5.5-4.5 2.5-4.5 5.2 0 2.8 2.2 5 5 5h18c3.3 0 6-2.7 6-6s-2.7-6-6-6z" fill="url(#cloudGradient)"/>
+  
+  <!-- Trail/Path lines -->
+  <path d="M20 40 L32 45 L44 40" stroke="url(#trailGradient)" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8"/>
+  <path d="M22 45 L32 50 L42 45" stroke="url(#trailGradient)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M24 50 L32 54 L40 50" stroke="url(#trailGradient)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.4"/>
+  
+  <!-- Small dots on trail -->
+  <circle cx="26" cy="42.5" r="1.5" fill="url(#trailGradient)" opacity="0.9"/>
+  <circle cx="32" cy="47.5" r="1.5" fill="url(#trailGradient)" opacity="0.9"/>
+  <circle cx="38" cy="42.5" r="1.5" fill="url(#trailGradient)" opacity="0.9"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="trailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+

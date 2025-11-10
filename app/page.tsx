@@ -204,16 +204,13 @@ export default function App() {
       <main className="container">
         <div className="welcome-screen">
           <div className="welcome-content">
-            <h1>CloudShrug</h1>
+            <h1>Alarm Trail</h1>
             <p className="welcome-subtitle">
-            Recongize patterns in you aws CloudWatch Alarms
-            </p>
-            <p className="welcome-subtitle">
-             Gain insight in to your alarms and view patterns over time 
+            Recongize, investigate, and document patterns in you AWS CloudWatch Alarms
             </p>
             <div className="welcome-actions">
               <button onClick={() => setDemoMode(true)} className="btn-secondary btn-large">
-                View Demo Instead
+                View Demo
               </button>
             </div>
             <div className="auth-container">
