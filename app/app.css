@@ -170,6 +170,16 @@ button {
   margin-top: 12px;
 }
 
+.calendly-container {
+  margin: 24px 0;
+  text-align: center;
+}
+
+.calendly-container a {
+  text-decoration: none;
+  display: inline-block;
+}
+
 /* Alarms Section */
 .alarms-section {
   background: white;

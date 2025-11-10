@@ -257,7 +257,7 @@ export default function App() {
                 }} 
                 className="btn-secondary"
               >
-                Sign In
+                Sign Up
               </button>
             </div>
           </div>
@@ -271,17 +271,6 @@ export default function App() {
             {demoMode ? (
               <>
                 <span>Demo User</span>
-                <button 
-                  onClick={() => {
-                    setDemoMode(false);
-                    setAlarms([]);
-                    setOrganization(null);
-                    setSelectedAlarm(null);
-                  }} 
-                  className="btn-primary"
-                >
-                  Sign In
-                </button>
               </>
             ) : user ? (
               <>
@@ -295,18 +284,34 @@ export default function App() {
 
       {organization && !demoMode && (
         <section className="webhook-section">
-          <h2>Webhook Configuration</h2>
-          <p>Configure your CloudWatch alarms to send notifications to this webhook URL:</p>
-          <div className="webhook-url-container">
-            <code className="webhook-url">
-              {(outputs as any).custom?.webhookUrl || 'Deploy to get webhook URL'}?apiKey={organization.webhookApiKey}
-            </code>
-            <button onClick={copyWebhookUrl} className="btn-copy">Copy URL</button>
+          <h2>Schedule a Call with an Implementation Specialist</h2>
+          <p>Ready to get started? Schedule a call with our implementation specialist to set up your CloudWatch alarm integration.</p>
+          <div className="calendly-container">
+            <a 
+              href="https://calendar.app.google/YCg6ubHd6YABnoap9"
+              className="btn-primary btn-large"
+            >
+              Schedule a Call
+            </a>
+            <p style={{ marginTop: '12px', fontSize: '14px', color: '#718096' }}>
+            </p>
           </div>
-          <p className="help-text">
-            Instructions: Create an SNS topic in AWS, add the webhook URL as an HTTPS subscription, 
-            then configure your CloudWatch alarms to publish to that SNS topic.
-          </p>
+          {/* 
+          <section className="webhook-section">
+            <h2>Webhook Configuration</h2>
+            <p>Configure your CloudWatch alarms to send notifications to this webhook URL:</p>
+            <div className="webhook-url-container">
+              <code className="webhook-url">
+                {(outputs as any).custom?.webhookUrl || 'Deploy to get webhook URL'}?apiKey={organization.webhookApiKey}
+              </code>
+              <button onClick={copyWebhookUrl} className="btn-copy">Copy URL</button>
+            </div>
+            <p className="help-text">
+              Instructions: Create an SNS topic in AWS, add the webhook URL as an HTTPS subscription, 
+              then configure your CloudWatch alarms to publish to that SNS topic.
+            </p>
+          </section>
+          */}
         </section>
       )}
 
