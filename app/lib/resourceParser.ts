@@ -187,13 +187,13 @@ export function groupAlarmsByResource(alarms: Alarm[]): GroupedAlarms[] {
         (a) => a.state === "ALARM"
       ).length;
       const latestAlarm = sortedAlarms[0] || null;
-      const investigationStatuses = [
-        ...new Set(
+      const investigationStatuses = Array.from(
+        new Set(
           alarmList
             .map((a) => a.investigationStatus || "PENDING")
             .filter((s) => s)
-        ),
-      ];
+        )
+      );
       
       resources.push({
         resourceInfo,
